@@ -60,25 +60,6 @@ pipeline {
             }
           }
 
-
-        stage('Dockerfile') {
-            steps {
-                script {
-                        sh '''
-cat > ${DOCKER_FILE} << EOF
-FROM maven:3.8.6-openjdk-11
-RUN cat /etc/os-release
-ADD . /src
-WORKDIR /src
-RUN mvn -Dmaven.test.failure.ignore clean package
-RUN ls target
-EOF
-                        '''
-                }
-
-            }
-        }
-
         stage('Docker-Build') {
             steps {
                 script {
@@ -95,42 +76,42 @@ EOF
             }
         }
 
-        // stage('Compliance Check') {
-        //     steps{
-        //         script {
-        //         final def (String response, String code) =
-        //             sh(script: """curl -X POST -d '{"requestSource": "CBCI", "requestId" : "${REQST_ID}", "requestTimestamp" : "${REQST_TIME_STAMP}", "details" : {"project" : "<<Project Name>>", "release" : "<<Release Name>>", "pipeline" : "<<Pipeline Name>>" } }' -s -w "\\n%{response_code}" ${COMPLIANCE_CHECK}""", returnStdout: true)                
-        //                 .trim()
-        //                 .tokenize('\n')
+        stage('Compliance Check') {
+            steps{
+                script {
+                final def (String response, String code) =
+                    sh(script: """curl -X POST -d '{"requestSource": "CBCI", "requestId" : "${REQST_ID}", "requestTimestamp" : "${REQST_TIME_STAMP}", "details" : {"project" : "<<Project Name>>", "release" : "<<Release Name>>", "pipeline" : "<<Pipeline Name>>" } }' -s -w "\\n%{response_code}" ${COMPLIANCE_CHECK}""", returnStdout: true)                
+                        .trim()
+                        .tokenize('\n')
 
-        //         if (code == null) {
-        //             code = Integer.parseInt(response)
-        //         }
+                if (code == null) {
+                    code = Integer.parseInt(response)
+                }
 
-        //         if (code == "200") {
-        //             def json = readJSON text: response
-        //             def status = json.complianceCheckStatus
-        //             echo "status = $status"
-        //             if (status != "APPROVED") {
-        //                 error "Pre-Deploy compliance check - failed"
-        //             }
-        //         } else {
-        //             echo "Failed to check compliance with CBC"
-        //             error "Failed to check compliance with CBC"
-        //         }
-        //         }
-        //     }
-        // }    
+                if (code == "200") {
+                    def json = readJSON text: response
+                    def status = json.complianceCheckStatus
+                    echo "status = $status"
+                    if (status != "APPROVED") {
+                        error "Pre-Deploy compliance check - failed"
+                    }
+                } else {
+                    echo "Failed to check compliance with CBC"
+                    error "Failed to check compliance with CBC"
+                }
+                }
+            }
+        }    
 
 
-        // stage('DockerHub-Push') {
-        //     steps {
-        //     script {
-        //         sh "docker tag $MODULE $TARGET_DOCKERHUB"
-        //         sh "docker push -q $TARGET_DOCKERHUB"
-        //         }
-        //     }
-        // }
+        stage('DockerHub-Push') {
+            steps {
+            script {
+                sh "docker tag $MODULE $TARGET_DOCKERHUB"
+                sh "docker push -q $TARGET_DOCKERHUB"
+                }
+            }
+        }
 
       
 
