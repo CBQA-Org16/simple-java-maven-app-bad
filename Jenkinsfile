@@ -67,6 +67,7 @@ pipeline {
                         sh '''
 cat > ${DOCKER_FILE} << EOF
 FROM maven:3.8.1
+RUN cat /etc/os-release
 ADD . /src
 WORKDIR /src
 RUN mvn -Dmaven.test.failure.ignore clean package
