@@ -66,7 +66,7 @@ pipeline {
                 script {
                         sh '''
 cat > ${DOCKER_FILE} << EOF
-FROM maven:3.8.1
+FROM maven:3.8.6-openjdk-11
 RUN cat /etc/os-release
 ADD . /src
 WORKDIR /src
