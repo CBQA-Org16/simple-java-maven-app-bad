@@ -95,32 +95,32 @@ EOF
             }
         }
 
-        stage('Compliance Check') {
-            steps{
-                script {
-                final def (String response, String code) =
-                    sh(script: """curl -X POST -d '{"requestSource": "CBCI", "requestId" : "${REQST_ID}", "requestTimestamp" : "${REQST_TIME_STAMP}", "details" : {"project" : "<<Project Name>>", "release" : "<<Release Name>>", "pipeline" : "<<Pipeline Name>>" } }' -s -w "\\n%{response_code}" ${COMPLIANCE_CHECK}""", returnStdout: true)                
-                        .trim()
-                        .tokenize('\n')
+        // stage('Compliance Check') {
+        //     steps{
+        //         script {
+        //         final def (String response, String code) =
+        //             sh(script: """curl -X POST -d '{"requestSource": "CBCI", "requestId" : "${REQST_ID}", "requestTimestamp" : "${REQST_TIME_STAMP}", "details" : {"project" : "<<Project Name>>", "release" : "<<Release Name>>", "pipeline" : "<<Pipeline Name>>" } }' -s -w "\\n%{response_code}" ${COMPLIANCE_CHECK}""", returnStdout: true)                
+        //                 .trim()
+        //                 .tokenize('\n')
 
-                if (code == null) {
-                    code = Integer.parseInt(response)
-                }
+        //         if (code == null) {
+        //             code = Integer.parseInt(response)
+        //         }
 
-                if (code == "200") {
-                    def json = readJSON text: response
-                    def status = json.complianceCheckStatus
-                    echo "status = $status"
-                    if (status != "APPROVED") {
-                        error "Pre-Deploy compliance check - failed"
-                    }
-                } else {
-                    echo "Failed to check compliance with CBC"
-                    error "Failed to check compliance with CBC"
-                }
-                }
-            }
-        }    
+        //         if (code == "200") {
+        //             def json = readJSON text: response
+        //             def status = json.complianceCheckStatus
+        //             echo "status = $status"
+        //             if (status != "APPROVED") {
+        //                 error "Pre-Deploy compliance check - failed"
+        //             }
+        //         } else {
+        //             echo "Failed to check compliance with CBC"
+        //             error "Failed to check compliance with CBC"
+        //         }
+        //         }
+        //     }
+        // }    
 
 
         // stage('DockerHub-Push') {
